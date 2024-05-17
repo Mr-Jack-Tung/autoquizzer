@@ -1,3 +1,9 @@
+## Update: 18 May 2024
+- File: pipelines.py
+- Replace OpenAIGenerator by OllamaGenerator
+- Replace SerperDevWebSearch by WikiSearch Custom Component
+
+
 ---
 title: AutoQuizzer
 emoji: 🧑‍🏫
