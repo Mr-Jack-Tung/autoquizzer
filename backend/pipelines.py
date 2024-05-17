@@ -1,6 +1,6 @@
 from .custom_components import TrafilaturaHTMLConverter, QuizParser
 from haystack.components.fetchers import LinkContentFetcher
-from haystack.components.generators import OpenAIGenerator
+# from haystack.components.generators import OpenAIGenerator
 from haystack.components.builders import PromptBuilder
 from haystack.components.websearch.serper_dev import SerperDevWebSearch
 
@@ -41,14 +41,24 @@ quiz_generation_pipeline.add_component("html_converter", TrafilaturaHTMLConverte
 quiz_generation_pipeline.add_component(
     "prompt_builder", PromptBuilder(template=quiz_generation_template)
 )
+
+from haystack_integrations.components.generators.ollama import OllamaGenerator
+
 quiz_generation_pipeline.add_component(
     "generator",
-    OpenAIGenerator(
-        api_key=Secret.from_env_var("GROQ_API_KEY"),
-        api_base_url="https://api.groq.com/openai/v1",
-        model="llama3-8b-8192",
-        generation_kwargs={"max_tokens": 1000, "temperature": 0.5, "top_p": 1},
-    ),
+    OllamaGenerator(model="phi3",
+                    url = "http://localhost:11434/api/generate",
+                    generation_kwargs={
+                      "num_predict": 1000,
+                      "temperature": 0.5,
+                      "top_p": 1
+                      }),
+    # OpenAIGenerator(
+    #     api_key=Secret.from_env_var("GROQ_API_KEY"),
+    #     api_base_url="https://api.groq.com/openai/v1",
+    #     model="llama3-8b-8192",
+    #     generation_kwargs={"max_tokens": 1000, "temperature": 0.5, "top_p": 1},
+    # ),
 )
 quiz_generation_pipeline.add_component("quiz_parser", QuizParser())
 
@@ -74,17 +84,22 @@ chosen option (a, b, c, or d):
 """
 
 closed_book_answer_pipeline = Pipeline()
-closed_book_answer_pipeline.add_component(
-    "prompt_builder", PromptBuilder(template=closed_book_template)
-)
+closed_book_answer_pipeline.add_component("prompt_builder", PromptBuilder(template=closed_book_template))
 closed_book_answer_pipeline.add_component(
     "generator",
-    OpenAIGenerator(
-        api_key=Secret.from_env_var("GROQ_API_KEY"),
-        api_base_url="https://api.groq.com/openai/v1",
-        model="llama3-8b-8192",
-        generation_kwargs={"max_tokens": 5, "temperature": 0, "top_p": 1},
-    ),
+    OllamaGenerator(model="phi3",
+                    url = "http://localhost:11434/api/generate",
+                    generation_kwargs={
+                      "num_predict": 1000,
+                      "temperature": 0.5,
+                      "top_p": 1
+                      }),
+    # OpenAIGenerator(
+    #     api_key=Secret.from_env_var("GROQ_API_KEY"),
+    #     api_base_url="https://api.groq.com/openai/v1",
+    #     model="llama3-8b-8192",
+    #     generation_kwargs={"max_tokens": 5, "temperature": 0, "top_p": 1},
+    # ),
 )
 closed_book_answer_pipeline.connect("prompt_builder", "generator")
 
@@ -108,19 +123,48 @@ Snippets:
 chosen option (a, b, c, or d):
 """
 
+
+from langchain_community.tools import WikipediaQueryRun
+from langchain_community.utilities import WikipediaAPIWrapper
+
+from haystack import component
+from typing import List
+
+# https://docs.haystack.deepset.ai/docs/custom-components
+# https://docs.haystack.deepset.ai/reference/websearch-api
+
+@component
+class WikiSearch:
+    """
+    Search the world's information to help you find exactly what you're looking.
+    """
+
+    @component.output_types(documents=List[str])
+    def run(self, query:str):
+        wikipedia = WikipediaQueryRun(api_wrapper=WikipediaAPIWrapper(top_k_results=3, doc_content_chars_max=300))
+        results = wikipedia.run(query)
+        return results
+
+
 web_rag_pipeline = Pipeline()
-web_rag_pipeline.add_component("websearch", SerperDevWebSearch(top_k=3))
-web_rag_pipeline.add_component(
-    "prompt_builder", PromptBuilder(template=web_rag_template)
-)
+# web_rag_pipeline.add_component("websearch", SerperDevWebSearch(top_k=3))
+web_rag_pipeline.add_component("websearch", WikiSearch())
+web_rag_pipeline.add_component("prompt_builder", PromptBuilder(template=web_rag_template))
 web_rag_pipeline.add_component(
     "generator",
-    OpenAIGenerator(
-        api_key=Secret.from_env_var("GROQ_API_KEY"),
-        api_base_url="https://api.groq.com/openai/v1",
-        model="llama3-8b-8192",
-        generation_kwargs={"max_tokens": 5, "temperature": 0, "top_p": 1},
-    ),
+    OllamaGenerator(model="phi3",
+                    url = "http://localhost:11434/api/generate",
+                    generation_kwargs={
+                      "num_predict": 1000,
+                      "temperature": 0.5,
+                      "top_p": 1
+                      }),
+    # OpenAIGenerator(
+    #     api_key=Secret.from_env_var("GROQ_API_KEY"),
+    #     api_base_url="https://api.groq.com/openai/v1",
+    #     model="llama3-8b-8192",
+    #     generation_kwargs={"max_tokens": 5, "temperature": 0, "top_p": 1},
+    # ),
 )
 web_rag_pipeline.connect("websearch.documents", "prompt_builder.documents")
 web_rag_pipeline.connect("prompt_builder", "generator")
