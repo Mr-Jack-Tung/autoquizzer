@@ -46,7 +46,7 @@ from haystack_integrations.components.generators.ollama import OllamaGenerator
 
 quiz_generation_pipeline.add_component(
     "generator",
-    OllamaGenerator(model="phi3",
+    OllamaGenerator(model="mistral",
                     url = "http://localhost:11434/api/generate",
                     generation_kwargs={
                       "num_predict": 1000,
@@ -87,7 +87,7 @@ closed_book_answer_pipeline = Pipeline()
 closed_book_answer_pipeline.add_component("prompt_builder", PromptBuilder(template=closed_book_template))
 closed_book_answer_pipeline.add_component(
     "generator",
-    OllamaGenerator(model="phi3",
+    OllamaGenerator(model="mistral",
                     url = "http://localhost:11434/api/generate",
                     generation_kwargs={
                       "num_predict": 1000,
@@ -164,7 +164,7 @@ web_rag_pipeline.add_component("websearch", WikiSearch())
 web_rag_pipeline.add_component("prompt_builder", PromptBuilder(template=web_rag_template))
 web_rag_pipeline.add_component(
     "generator",
-    OllamaGenerator(model="phi3",
+    OllamaGenerator(model="mistral",
                     url = "http://localhost:11434/api/generate",
                     generation_kwargs={
                       "num_predict": 1000,
