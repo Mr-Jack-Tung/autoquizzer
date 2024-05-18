@@ -129,9 +129,11 @@ from langchain_community.utilities import WikipediaAPIWrapper
 
 from haystack import component
 from typing import List
+from haystack import Document
 
 # https://docs.haystack.deepset.ai/docs/custom-components
 # https://docs.haystack.deepset.ai/reference/websearch-api
+# https://python.langchain.com/v0.1/docs/integrations/tools/wikipedia/
 
 @component
 class WikiSearch:
@@ -139,11 +141,21 @@ class WikiSearch:
     Search the world's information to help you find exactly what you're looking.
     """
 
-    @component.output_types(documents=List[str])
+    @component.output_types(documents=List[Document])
     def run(self, query:str):
-        wikipedia = WikipediaQueryRun(api_wrapper=WikipediaAPIWrapper(top_k_results=3, doc_content_chars_max=300))
+        print("\nquery:",query)
+
+        wikipedia = WikipediaQueryRun(api_wrapper=WikipediaAPIWrapper(top_k_results=3, doc_content_chars_max=4000))
         results = wikipedia.run(query)
-        return results
+        pages = results.split("\n\n")
+
+        documents = []
+        for page in pages:
+            document = Document(content=str(page.split("Summary: ")[1]))
+            documents.append(document)
+
+        # return results
+        return {"documents": documents}
 
 
 web_rag_pipeline = Pipeline()
