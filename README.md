@@ -3,7 +3,9 @@
 - Replace OpenAIGenerator by OllamaGenerator
 - Replace SerperDevWebSearch by WikiSearch Custom Component
 
-hôm nay test thử cái AutoQuizzer cho LLM nó tự làm bài quiz về nội dung của một bài trên Wiki mà không có sự hỗ trợ thêm dữ liệu bên ngoài thì em nó trả lời đúng được 80% (4/5 câu hỏi), một kết quả khá tốt :d ~> điều này cho thấy là Phi3-Mini đã được pretrain khá tốt bằng nguồn dữ liệu wikipedia nên em nó nhớ được thông tin để trả lời :d
+Hôm nay test thử cái AutoQuizzer cho LLM nó tự sinh ra đề bài và làm bài quiz. Cái này khá hay khi ứng dụng trong lĩnh vực giáo dục, thầy cô giáo có thể dùng em nó để tạo ra bộ câu hỏi trắc nghiệm, kiểm tra kiến thức khá hay. AutoQuizzer có thể tạo bài quiz với nội dung là một bài trên Wiki mà không có sự hỗ trợ thêm dữ liệu bên ngoài thì em nó trả lời đúng được 80% (4/5 câu hỏi), tùy theo nội dung bài viết, một kết quả khá tốt :d ~> điều này cho thấy là Phi3-Mini đã được pretrain khá tốt bằng nguồn dữ liệu wikipedia nên em nó nhớ được thông tin để trả lời :d
+
+Với model Phi3-Mini-3.8B-4bit thì tốc độ nhanh nhưng khả năng suy luận thì còn khá "ngô nghê". Nhưng nếu sử dụng model mistral-7B thì kết quả trả ra sẽ tốt hơn nhiều.
 
 ---
 title: AutoQuizzer
