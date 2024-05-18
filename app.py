@@ -23,7 +23,8 @@ def populate_quiz(quiz, url):
     quiz_header = gr.Markdown("## 📝 Quiz")
 
     options, md_blocks = [], []
-    for i in range(5):
+    # for i in range(5):
+    for i in range(len(quiz["questions"])):
         option = gr.Radio(
             value=None,
             choices=quiz["questions"][i]["options"],
@@ -79,14 +80,15 @@ def compute_display_results(quiz, answer0, answer1, answer2, answer3, answer4):
                 gr.Markdown("Wrong. Correct answer: " + right_option, visible=True)
             )
 
-    score = score / 5
+    score = score / len(quiz["questions"])
 
     score_label = gr.Label(
         f"Your score is {score*100}%", visible=True, show_label=False
     )
 
     options = []
-    for i in range(5):
+    # for i in range(5):
+    for i in range(len(quiz["questions"])):
         option = gr.Radio(
             choices=quiz["questions"][i]["options"],
             interactive=False,
@@ -115,7 +117,7 @@ def compute_display_closed_book(quiz):
         if answer == quiz["questions"][i]["right_option"]:
             score += 1
 
-    score = score / 5
+    score = score / len(quiz["questions"])
 
     closed_book_label = gr.Label(
         f"LLM closed book score is {score*100}%", visible=True, show_label=False
@@ -151,7 +153,7 @@ def compute_display_web_rag(quiz):
         if answer == quiz["questions"][i]["right_option"]:
             score += 1
 
-    score = score / 5
+    score = score / len(quiz["questions"])
 
     web_rag_label = gr.Label(
         f"LLM Web RAG score is {score*100}%", visible=True, show_label=False
